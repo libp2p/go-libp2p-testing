@@ -3,12 +3,12 @@ package testutil
 import (
 	"testing"
 
-	metrics "github.com/ipfs/go-ipfs/metrics"
-	bhost "github.com/ipfs/go-ipfs/p2p/host/basic"
-	inet "github.com/ipfs/go-ipfs/p2p/net"
-	swarm "github.com/ipfs/go-ipfs/p2p/net/swarm"
-	peer "github.com/ipfs/go-ipfs/p2p/peer"
 	tu "github.com/ipfs/go-ipfs/util/testutil"
+	bhost "github.com/ipfs/go-libp2p/p2p/host/basic"
+	inet "github.com/ipfs/go-libp2p/p2p/net"
+	swarm "github.com/ipfs/go-libp2p/p2p/net/swarm"
+	peer "github.com/ipfs/go-libp2p/p2p/peer"
+	metrics "github.com/ipfs/go-libp2p/util/metrics"
 
 	ma "github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/jbenet/go-multiaddr"
 	context "github.com/ipfs/go-ipfs/Godeps/_workspace/src/golang.org/x/net/context"

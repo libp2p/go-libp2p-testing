@@ -5,12 +5,12 @@ import (
 	"io"
 	"testing"
 
-	logging "github.com/ipfs/go-ipfs/vendor/go-log-v1.0.0"
 	u "github.com/ipfs/go-ipfs/util"
 	testutil "github.com/ipfs/go-ipfs/util/testutil"
+	logging "github.com/ipfs/go-ipfs/vendor/go-log-v1.0.0"
 
-	ic "github.com/ipfs/go-ipfs/p2p/crypto"
-	peer "github.com/ipfs/go-ipfs/p2p/peer"
+	ic "github.com/ipfs/go-libp2p/p2p/crypto"
+	peer "github.com/ipfs/go-libp2p/p2p/peer"
 
 	ma "github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/jbenet/go-multiaddr"
 )
