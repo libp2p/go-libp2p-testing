@@ -10,7 +10,7 @@ import (
 	peer "github.com/ipfs/go-libp2p/p2p/peer"
 	tu "util/testutil"
 
-	ma "QmaA6aDzeHjZiuqBtgYRz8ZXb1qMCoyMHgyDjBEYQniUKF/go-multiaddr"
+	ma "QmbWxL1aXQhBjc1XGjGF1f2KGBMCBYSuT2ThA8YXnXJK83/go-multiaddr"
 	context "golang.org/x/net/context"
 )
 
