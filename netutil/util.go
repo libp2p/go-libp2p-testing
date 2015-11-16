@@ -8,7 +8,7 @@ import (
 	inet "github.com/ipfs/go-libp2p/p2p/net"
 	swarm "github.com/ipfs/go-libp2p/p2p/net/swarm"
 	peer "github.com/ipfs/go-libp2p/p2p/peer"
-	tu "util/testutil"
+	tu "github.com/ipfs/go-libp2p/testutil"
 
 	context "QmacZi9WygGK7Me8mH53pypyscHzU386aUZXpr28GZgUct/context"
 	ma "QmbWxL1aXQhBjc1XGjGF1f2KGBMCBYSuT2ThA8YXnXJK83/go-multiaddr"

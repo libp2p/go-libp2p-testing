@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	logging "QmWRypnfEwrgH4k93KEHN5hng7VjKYkWmzDYRuTZeh2Mgh/go-log"
+	testutil "github.com/ipfs/go-libp2p/testutil"
 	u "util"
-	testutil "util/testutil"
 
 	ic "github.com/ipfs/go-libp2p/p2p/crypto"
 	peer "github.com/ipfs/go-libp2p/p2p/peer"
