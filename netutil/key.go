@@ -5,14 +5,14 @@ import (
 	"io"
 	"testing"
 
-	u "github.com/ipfs/go-ipfs-util"
 	testutil "github.com/ipfs/go-libp2p/testutil"
-	logging "github.com/ipfs/go-log"
+	u "gx/ipfs/QmZNVWh8LLjAavuQ2JXuFmuYH3C11xo988vSgp7UQrTRj1/go-ipfs-util"
+	logging "gx/ipfs/Qmazh5oNUVsDZTs2g59rq8aYQqwpss8tcUWQzor5sCCEuH/go-log"
 
 	ic "github.com/ipfs/go-libp2p/p2p/crypto"
 	peer "github.com/ipfs/go-libp2p/p2p/peer"
 
-	ma "github.com/jbenet/go-multiaddr"
+	ma "gx/ipfs/QmR3JkmZBKYXgNMNsNZawm914455Qof3PEopwuVSeXG7aV/go-multiaddr"
 )
 
 var log = logging.Logger("boguskey")
