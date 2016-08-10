@@ -8,8 +8,8 @@ import (
 	u "github.com/ipfs/go-ipfs-util"
 	ic "github.com/ipfs/go-libp2p-crypto"
 	peer "github.com/ipfs/go-libp2p-peer"
-	testutil "github.com/ipfs/go-libp2p/testutil"
 	logging "github.com/ipfs/go-log"
+	testutil "github.com/libp2p/go-libp2p/testutil"
 
 	ma "github.com/jbenet/go-multiaddr"
 )
