@@ -10,8 +10,8 @@ import (
 	swarm "github.com/libp2p/go-libp2p/p2p/net/swarm"
 	tu "github.com/libp2p/go-libp2p/testutil"
 
+	"context"
 	ma "github.com/jbenet/go-multiaddr"
-	context "golang.org/x/net/context"
 )
 
 func GenSwarmNetwork(t *testing.T, ctx context.Context) *swarm.Network {
