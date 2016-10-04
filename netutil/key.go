@@ -9,7 +9,7 @@ import (
 	ic "github.com/ipfs/go-libp2p-crypto"
 	peer "github.com/ipfs/go-libp2p-peer"
 	logging "github.com/ipfs/go-log"
-	testutil "github.com/libp2p/go-libp2p/testutil"
+	testutil "github.com/libp2p/go-testutil"
 
 	ma "github.com/jbenet/go-multiaddr"
 )

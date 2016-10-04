@@ -1,17 +1,17 @@
 package testutil
 
 import (
+	"context"
 	"testing"
 
-	pstore "github.com/ipfs/go-libp2p-peerstore"
 	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
 	metrics "github.com/libp2p/go-libp2p/p2p/metrics"
 	inet "github.com/libp2p/go-libp2p/p2p/net"
 	swarm "github.com/libp2p/go-libp2p/p2p/net/swarm"
-	tu "github.com/libp2p/go-libp2p/testutil"
 
-	"context"
+	pstore "github.com/ipfs/go-libp2p-peerstore"
 	ma "github.com/jbenet/go-multiaddr"
+	tu "github.com/libp2p/go-testutil"
 )
 
 func GenSwarmNetwork(t *testing.T, ctx context.Context) *swarm.Network {
