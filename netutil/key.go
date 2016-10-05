@@ -6,12 +6,12 @@ import (
 	"testing"
 
 	u "github.com/ipfs/go-ipfs-util"
-	ic "github.com/ipfs/go-libp2p-crypto"
-	peer "github.com/ipfs/go-libp2p-peer"
 	logging "github.com/ipfs/go-log"
+	ic "github.com/libp2p/go-libp2p-crypto"
+	peer "github.com/libp2p/go-libp2p-peer"
 	testutil "github.com/libp2p/go-testutil"
 
-	ma "github.com/jbenet/go-multiaddr"
+	ma "github.com/multiformats/go-multiaddr"
 )
 
 var log = logging.Logger("boguskey")
