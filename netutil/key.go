@@ -2,10 +2,10 @@ package testutil
 
 import (
 	"bytes"
+	"crypto/rand"
 	"io"
 	"testing"
 
-	u "github.com/ipfs/go-ipfs-util"
 	logging "github.com/ipfs/go-log"
 	ic "github.com/libp2p/go-libp2p-crypto"
 	peer "github.com/libp2p/go-libp2p-peer"
@@ -41,10 +41,6 @@ func (pk TestBogusPublicKey) Equals(k ic.Key) bool {
 	return ic.KeyEqual(pk, k)
 }
 
-func (pk TestBogusPublicKey) Hash() ([]byte, error) {
-	return ic.KeyHash(pk)
-}
-
 func (sk TestBogusPrivateKey) GenSecret() []byte {
 	return []byte(sk)
 }
@@ -72,14 +68,9 @@ func (sk TestBogusPrivateKey) Equals(k ic.Key) bool {
 	return ic.KeyEqual(sk, k)
 }
 
-func (sk TestBogusPrivateKey) Hash() ([]byte, error) {
-	return ic.KeyHash(sk)
-}
-
 func RandTestBogusPrivateKey() (TestBogusPrivateKey, error) {
-	r := u.NewTimeSeededRand()
 	k := make([]byte, 5)
-	if _, err := io.ReadFull(r, k); err != nil {
+	if _, err := io.ReadFull(rand.Reader, k); err != nil {
 		return nil, err
 	}
 	return TestBogusPrivateKey(k), nil
