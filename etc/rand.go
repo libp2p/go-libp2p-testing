@@ -1,4 +1,4 @@
-package helper
+package tetc
 
 import (
 	"math/rand"

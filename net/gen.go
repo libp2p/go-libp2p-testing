@@ -1,4 +1,4 @@
-package helper
+package tnet
 
 import (
 	"bytes"
@@ -8,8 +8,9 @@ import (
 	"testing"
 
 	ci "github.com/libp2p/go-libp2p-core/crypto"
-	"github.com/libp2p/go-libp2p-core/crypto/test"
 	"github.com/libp2p/go-libp2p-core/peer"
+	tcrypto "github.com/libp2p/go-libp2p-testing/crypto"
+	"github.com/libp2p/go-libp2p-testing/etc"
 
 	ma "github.com/multiformats/go-multiaddr"
 )
@@ -33,7 +34,7 @@ func RandLocalTCPAddress() ma.Multiaddr {
 
 	lastPort.Lock()
 	if lastPort.port == 0 {
-		lastPort.port = 10000 + SeededRand.Intn(50000)
+		lastPort.port = 10000 + tetc.SeededRand.Intn(50000)
 	}
 	port := lastPort.port
 	lastPort.port++
