@@ -298,7 +298,7 @@ func SubtestStreamOpenStress(t *testing.T, ta, tb transport.Transport, maddr ma.
 	}
 
 	var (
-		connA, connB transport.UpgradedConn
+		connA, connB transport.CapableConn
 	)
 
 	accepted := make(chan error, 1)

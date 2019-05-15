@@ -19,7 +19,7 @@ var testData = []byte("this is some test data")
 
 type streamAndConn struct {
 	stream mux.MuxedStream
-	conn   transport.UpgradedConn
+	conn   transport.CapableConn
 }
 
 func SubtestProtocols(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
@@ -64,7 +64,7 @@ func SubtestBasic(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, 
 	defer list.Close()
 
 	var (
-		connA, connB transport.UpgradedConn
+		connA, connB transport.CapableConn
 		done         = make(chan struct{})
 	)
 	defer func() {
