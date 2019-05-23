@@ -9,7 +9,7 @@ import (
 
 	ci "github.com/libp2p/go-libp2p-core/crypto"
 	"github.com/libp2p/go-libp2p-core/peer"
-	tcrypto "github.com/libp2p/go-libp2p-testing/crypto"
+	"github.com/libp2p/go-libp2p-core/test"
 	"github.com/libp2p/go-libp2p-testing/etc"
 
 	ma "github.com/multiformats/go-multiaddr"
@@ -101,7 +101,7 @@ func RandPeerNetParams() (*PeerNetParams, error) {
 	var p PeerNetParams
 	var err error
 	p.Addr = ZeroLocalTCPAddress
-	p.PrivKey, p.PubKey, err = tcrypto.RandTestKeyPair(ci.RSA, 1024)
+	p.PrivKey, p.PubKey, err = test.RandTestKeyPair(ci.RSA, 1024)
 	if err != nil {
 		return nil, err
 	}
