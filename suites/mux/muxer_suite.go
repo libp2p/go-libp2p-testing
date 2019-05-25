@@ -18,6 +18,7 @@ import (
 	mrand "math/rand"
 
 	"github.com/libp2p/go-libp2p-core/mux"
+	"github.com/libp2p/go-libp2p-testing/ci"
 )
 
 var randomness []byte
@@ -57,7 +58,7 @@ func checkErr(t *testing.T, err error) {
 }
 
 func log(s string, v ...interface{}) {
-	if testing.Verbose() {
+	if testing.Verbose() && !ci.IsRunning() {
 		fmt.Fprintf(os.Stderr, "> "+s+"\n", v...)
 	}
 }
@@ -74,7 +75,7 @@ type LogWriter struct {
 }
 
 func (lw *LogWriter) Write(buf []byte) (int, error) {
-	if testing.Verbose() {
+	if testing.Verbose() && !ci.IsRunning() {
 		log("logwriter: writing %d bytes", len(buf))
 	}
 	return lw.W.Write(buf)
