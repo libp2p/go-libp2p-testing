@@ -380,7 +380,12 @@ func SubtestStreamOpenStress(t *testing.T, tr mux.Multiplexer) {
 		}
 	}()
 
-	limit := time.After(time.Second * 10)
+	timeout := time.Second * 10
+	if ci.IsRunning() {
+		timeout *= 10
+	}
+
+	limit := time.After(timeout)
 	for i := 0; i < count*workers; i++ {
 		select {
 		case <-recv:
