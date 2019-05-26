@@ -6,12 +6,14 @@ import (
 	"io"
 	"testing"
 
-	logging "github.com/ipfs/go-log"
-	ic "github.com/libp2p/go-libp2p-crypto"
-	pb "github.com/libp2p/go-libp2p-crypto/pb"
-	peer "github.com/libp2p/go-libp2p-peer"
-	testutil "github.com/libp2p/go-testutil"
+	ic "github.com/libp2p/go-libp2p-core/crypto"
+	pb "github.com/libp2p/go-libp2p-core/crypto/pb"
 
+	"github.com/libp2p/go-libp2p-core/peer"
+
+	tnet "github.com/libp2p/go-libp2p-testing/net"
+
+	logging "github.com/ipfs/go-log"
 	ma "github.com/multiformats/go-multiaddr"
 )
 
@@ -120,7 +122,7 @@ func RandTestBogusPublicKeyOrFatal(t *testing.T) TestBogusPublicKey {
 	return k
 }
 
-func RandTestBogusIdentity() (testutil.Identity, error) {
+func RandTestBogusIdentity() (tnet.Identity, error) {
 	k, err := RandTestBogusPrivateKey()
 	if err != nil {
 		return nil, err
@@ -134,11 +136,11 @@ func RandTestBogusIdentity() (testutil.Identity, error) {
 	return &identity{
 		k:  k,
 		id: id,
-		a:  testutil.RandLocalTCPAddress(),
+		a:  tnet.RandLocalTCPAddress(),
 	}, nil
 }
 
-func RandTestBogusIdentityOrFatal(t *testing.T) testutil.Identity {
+func RandTestBogusIdentityOrFatal(t *testing.T) tnet.Identity {
 	k, err := RandTestBogusIdentity()
 	if err != nil {
 		t.Fatal(err)

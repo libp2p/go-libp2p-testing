@@ -3,9 +3,10 @@ package testutil
 import (
 	"bytes"
 	"crypto/rand"
-	ic "github.com/libp2p/go-libp2p-crypto"
-	pb "github.com/libp2p/go-libp2p-crypto/pb"
 	"testing"
+
+	ic "github.com/libp2p/go-libp2p-core/crypto"
+	pb "github.com/libp2p/go-libp2p-core/crypto/pb"
 )
 
 func TestBogusPublicKeyGeneration(t *testing.T) {
