@@ -319,31 +319,38 @@ func tcpPipe(t *testing.T) (net.Conn, net.Conn) {
 }
 
 func SubtestStreamOpenStress(t *testing.T, tr mux.Multiplexer) {
+	wg := new(sync.WaitGroup)
+	defer wg.Wait()
+
 	a, b := tcpPipe(t)
 	defer a.Close()
 	defer b.Close()
 
+	wg.Add(1)
 	count := 10000
+	workers := 5
 	go func() {
+		defer wg.Done()
 		muxa, err := tr.NewConn(a, true)
 		if err != nil {
 			t.Fatal(err)
 		}
 		stress := func() {
+			defer wg.Done()
 			for i := 0; i < count; i++ {
 				s, err := muxa.OpenStream()
 				if err != nil {
-					panic(err)
+					t.Error(err)
+					return
 				}
 				s.Close()
 			}
 		}
 
-		go stress()
-		go stress()
-		go stress()
-		go stress()
-		go stress()
+		for i := 0; i < workers; i++ {
+			wg.Add(1)
+			go stress()
+		}
 	}()
 
 	muxb, err := tr.NewConn(b, false)
@@ -353,22 +360,33 @@ func SubtestStreamOpenStress(t *testing.T, tr mux.Multiplexer) {
 
 	time.Sleep(time.Millisecond * 50)
 
-	recv := make(chan struct{})
+	wg.Add(1)
+	recv := make(chan struct{}, count*workers)
 	go func() {
+		defer wg.Done()
 		for {
 			str, err := muxb.AcceptStream()
 			if err != nil {
 				break
 			}
 			go func() {
-				recv <- struct{}{}
 				str.Close()
+				select {
+				case recv <- struct{}{}:
+				default:
+					t.Error("too many stream")
+				}
 			}()
 		}
 	}()
 
-	limit := time.After(time.Second * 10)
-	for i := 0; i < count*5; i++ {
+	timeout := time.Second * 10
+	if ci.IsRunning() {
+		timeout *= 10
+	}
+
+	limit := time.After(timeout)
+	for i := 0; i < count*workers; i++ {
 		select {
 		case <-recv:
 		case <-limit:
@@ -378,20 +396,25 @@ func SubtestStreamOpenStress(t *testing.T, tr mux.Multiplexer) {
 }
 
 func SubtestStreamReset(t *testing.T, tr mux.Multiplexer) {
+	wg := new(sync.WaitGroup)
+	defer wg.Wait()
+
 	a, b := tcpPipe(t)
 	defer a.Close()
 	defer b.Close()
 
-	done := make(chan struct{}, 2)
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		muxa, err := tr.NewConn(a, true)
 		if err != nil {
-			panic(err)
+			t.Error(err)
+			return
 		}
-
 		s, err := muxa.OpenStream()
 		if err != nil {
-			panic(err)
+			t.Error(err)
+			return
 		}
 		time.Sleep(time.Millisecond * 50)
 
@@ -401,7 +424,6 @@ func SubtestStreamReset(t *testing.T, tr mux.Multiplexer) {
 		}
 
 		s.Close()
-		done <- struct{}{}
 	}()
 
 	muxb, err := tr.NewConn(b, false)
@@ -409,15 +431,11 @@ func SubtestStreamReset(t *testing.T, tr mux.Multiplexer) {
 		t.Fatal(err)
 	}
 
-	go func() {
-		str, err := muxb.AcceptStream()
-		checkErr(t, err)
-		str.Reset()
-		done <- struct{}{}
-	}()
+	str, err := muxb.AcceptStream()
+	checkErr(t, err)
+	str.Reset()
 
-	<-done
-	<-done
+	wg.Wait()
 }
 
 // check that Close also closes the underlying net.Conn
