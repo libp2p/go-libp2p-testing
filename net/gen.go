@@ -101,7 +101,7 @@ func RandPeerNetParams() (*PeerNetParams, error) {
 	var p PeerNetParams
 	var err error
 	p.Addr = ZeroLocalTCPAddress
-	p.PrivKey, p.PubKey, err = test.RandTestKeyPair(ci.RSA, 1024)
+	p.PrivKey, p.PubKey, err = test.RandTestKeyPair(ci.Ed25519, 0)
 	if err != nil {
 		return nil, err
 	}
