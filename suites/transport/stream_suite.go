@@ -52,6 +52,9 @@ type Options struct {
 	MsgNum    int
 	MsgMin    int
 	MsgMax    int
+
+	RateLimit RateLimiter
+	Throttle  time.Duration
 }
 
 func fullClose(t *testing.T, s mux.MuxedStream) {
@@ -153,20 +156,49 @@ func goServe(t *testing.T, l transport.Listener) (done func()) {
 	}
 }
 
+// Can be nil without a problem, SubtestStress is gonna create a new one.
+type RateLimiter func(f func())
+
+func NewRateLimiter(d time.Duration) RateLimiter {
+	goroutinesLimitN := 5000 // max of 5k funcs, because -race has 8k max.
+	goroutinesLimitChan := make(chan struct{}, goroutinesLimitN)
+	for i := 0; i < goroutinesLimitN; i++ {
+		goroutinesLimitChan <- struct{}{}
+	}
+
+	limiter := func(f func()) {
+		<-goroutinesLimitChan
+		f()
+		goroutinesLimitChan <- struct{}{}
+	}
+
+	// Time limit
+	if d != 0 {
+		rateLimitChan := make(chan struct{}, 1)
+		rateLimitChan <- struct{}{}
+		oldLimiter := limiter
+		limiter = func(f func()) {
+			<-rateLimitChan
+			// Its not really a problem to fire its own goroutine for oldLimiter
+			// because most of the call to the limiter are in they own goroutine and
+			// and they are gonna die right after the Sleep.
+			go oldLimiter(f)
+			time.Sleep(d)
+			rateLimitChan <- struct{}{}
+		}
+	}
+	return limiter
+}
+
 func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, opt Options) {
 	msgsize := 1 << 11
 	errs := make(chan error, 0) // dont block anything.
 
-	rateLimitN := 5000 // max of 5k funcs, because -race has 8k max.
-	rateLimitChan := make(chan struct{}, rateLimitN)
-	for i := 0; i < rateLimitN; i++ {
-		rateLimitChan <- struct{}{}
-	}
-
-	rateLimit := func(f func()) {
-		<-rateLimitChan
-		f()
-		rateLimitChan <- struct{}{}
+	var rateLimit RateLimiter
+	if opt.RateLimit == nil {
+		rateLimit = NewRateLimiter(opt.Throttle)
+	} else {
+		rateLimit = opt.RateLimit
 	}
 
 	writeStream := func(s mux.MuxedStream, bufs chan<- []byte) {
@@ -418,62 +450,68 @@ func SubtestStreamReset(t *testing.T, ta, tb transport.Transport, maddr ma.Multi
 	<-done
 }
 
-func SubtestStress1Conn1Stream1Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
+func SubtestStress1Conn1Stream1Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
 	SubtestStress(t, ta, tb, maddr, peerA, Options{
 		ConnNum:   1,
 		StreamNum: 1,
 		MsgNum:    1,
 		MsgMax:    100,
 		MsgMin:    100,
+		RateLimit: rateLimit,
 	})
 }
 
-func SubtestStress1Conn1Stream100Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
+func SubtestStress1Conn1Stream100Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
 	SubtestStress(t, ta, tb, maddr, peerA, Options{
 		ConnNum:   1,
 		StreamNum: 1,
 		MsgNum:    100,
 		MsgMax:    100,
 		MsgMin:    100,
+		RateLimit: rateLimit,
 	})
 }
 
-func SubtestStress1Conn100Stream100Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
+func SubtestStress1Conn100Stream100Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
 	SubtestStress(t, ta, tb, maddr, peerA, Options{
 		ConnNum:   1,
 		StreamNum: 100,
 		MsgNum:    100,
 		MsgMax:    100,
 		MsgMin:    100,
+		RateLimit: rateLimit,
 	})
 }
 
-func SubtestStress50Conn10Stream50Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
+func SubtestStress50Conn10Stream50Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
 	SubtestStress(t, ta, tb, maddr, peerA, Options{
 		ConnNum:   50,
 		StreamNum: 10,
 		MsgNum:    50,
 		MsgMax:    100,
 		MsgMin:    100,
+		RateLimit: rateLimit,
 	})
 }
 
-func SubtestStress1Conn1000Stream10Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
+func SubtestStress1Conn1000Stream10Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
 	SubtestStress(t, ta, tb, maddr, peerA, Options{
 		ConnNum:   1,
 		StreamNum: 1000,
 		MsgNum:    10,
 		MsgMax:    100,
 		MsgMin:    100,
+		RateLimit: rateLimit,
 	})
 }
 
-func SubtestStress1Conn100Stream100Msg10MB(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
+func SubtestStress1Conn100Stream100Msg10MB(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
 	SubtestStress(t, ta, tb, maddr, peerA, Options{
 		ConnNum:   1,
 		StreamNum: 100,
 		MsgNum:    100,
 		MsgMax:    10000,
 		MsgMin:    1000,
+		RateLimit: rateLimit,
 	})
 }
