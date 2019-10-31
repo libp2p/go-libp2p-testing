@@ -450,7 +450,10 @@ func SubtestStreamReset(t *testing.T, ta, tb transport.Transport, maddr ma.Multi
 	<-done
 }
 
-func SubtestStress1Conn1Stream1Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
+func SubtestStress1Conn1Stream1Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
+	SubtestStress1Conn1Stream1MsgThrottled(t, ta, tb, maddr, peerA, NewRateLimiter(0))
+}
+func SubtestStress1Conn1Stream1MsgThrottled(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
 	SubtestStress(t, ta, tb, maddr, peerA, Options{
 		ConnNum:   1,
 		StreamNum: 1,
@@ -461,7 +464,10 @@ func SubtestStress1Conn1Stream1Msg(t *testing.T, ta, tb transport.Transport, mad
 	})
 }
 
-func SubtestStress1Conn1Stream100Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
+func SubtestStress1Conn1Stream100Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
+	SubtestStress1Conn1Stream100MsgThrottled(t, ta, tb, maddr, peerA, NewRateLimiter(0))
+}
+func SubtestStress1Conn1Stream100MsgThrottled(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
 	SubtestStress(t, ta, tb, maddr, peerA, Options{
 		ConnNum:   1,
 		StreamNum: 1,
@@ -472,7 +478,10 @@ func SubtestStress1Conn1Stream100Msg(t *testing.T, ta, tb transport.Transport, m
 	})
 }
 
-func SubtestStress1Conn100Stream100Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
+func SubtestStress1Conn100Stream100Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
+	SubtestStress1Conn100Stream100MsgThrottled(t, ta, tb, maddr, peerA, NewRateLimiter(0))
+}
+func SubtestStress1Conn100Stream100MsgThrottled(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
 	SubtestStress(t, ta, tb, maddr, peerA, Options{
 		ConnNum:   1,
 		StreamNum: 100,
@@ -483,7 +492,10 @@ func SubtestStress1Conn100Stream100Msg(t *testing.T, ta, tb transport.Transport,
 	})
 }
 
-func SubtestStress50Conn10Stream50Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
+func SubtestStress50Conn10Stream50Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
+	SubtestStress50Conn10Stream50MsgThrottled(t, ta, tb, maddr, peerA, NewRateLimiter(0))
+}
+func SubtestStress50Conn10Stream50MsgThrottled(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
 	SubtestStress(t, ta, tb, maddr, peerA, Options{
 		ConnNum:   50,
 		StreamNum: 10,
@@ -494,7 +506,10 @@ func SubtestStress50Conn10Stream50Msg(t *testing.T, ta, tb transport.Transport, 
 	})
 }
 
-func SubtestStress1Conn1000Stream10Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
+func SubtestStress1Conn1000Stream10Msg(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
+	SubtestStress1Conn1000Stream10MsgThrottled(t, ta, tb, maddr, peerA, NewRateLimiter(0))
+}
+func SubtestStress1Conn1000Stream10MsgThrottled(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
 	SubtestStress(t, ta, tb, maddr, peerA, Options{
 		ConnNum:   1,
 		StreamNum: 1000,
@@ -505,7 +520,10 @@ func SubtestStress1Conn1000Stream10Msg(t *testing.T, ta, tb transport.Transport,
 	})
 }
 
-func SubtestStress1Conn100Stream100Msg10MB(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
+func SubtestStress1Conn100Stream100Msg10MB(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
+	SubtestStress1Conn100Stream100Msg10MBThrottled(t, ta, tb, maddr, peerA, NewRateLimiter(0))
+}
+func SubtestStress1Conn100Stream100Msg10MBThrottled(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, rateLimit RateLimiter) {
 	SubtestStress(t, ta, tb, maddr, peerA, Options{
 		ConnNum:   1,
 		StreamNum: 100,

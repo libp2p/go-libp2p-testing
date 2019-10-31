@@ -19,12 +19,12 @@ var Subtests = []interface{}{
 	SubtestPingPong,
 
 	// Stolen from the stream muxer test suite.
-	SubtestStress1Conn1Stream1Msg,
-	SubtestStress1Conn1Stream100Msg,
-	SubtestStress1Conn100Stream100Msg,
-	SubtestStress50Conn10Stream50Msg,
-	SubtestStress1Conn1000Stream10Msg,
-	SubtestStress1Conn100Stream100Msg10MB,
+	SubtestStress1Conn1Stream1MsgThrottled,
+	SubtestStress1Conn1Stream100MsgThrottled,
+	SubtestStress1Conn100Stream100MsgThrottled,
+	SubtestStress50Conn10Stream50MsgThrottled,
+	SubtestStress1Conn1000Stream10MsgThrottled,
+	SubtestStress1Conn100Stream100Msg10MBThrottled,
 	SubtestStreamOpenStress,
 	SubtestStreamReset,
 }
