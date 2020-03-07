@@ -419,8 +419,8 @@ func SubtestStreamReset(t *testing.T, tr mux.Multiplexer) {
 		time.Sleep(time.Millisecond * 50)
 
 		_, err = s.Write([]byte("foo"))
-		if err == nil {
-			t.Error("should have failed to write")
+		if err != mux.ErrReset {
+			t.Error("should have been stream reset")
 		}
 
 		s.Close()
