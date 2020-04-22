@@ -46,21 +46,9 @@ func ConnectionForNetwork(n *latency.Network) (n1, n2 net.Conn, err error) {
 	return
 }
 
-// FindNetworkLimit benchmarks a function to analyze CPU, parallism, and network relationship
-func FindNetworkLimit(testFunc NetworkTestFunc) (float64, error) {
-	maxProcs := runtime.GOMAXPROCS(0)
-	runtime.GOMAXPROCS(maxProcs)
-	if maxProcs > 1 {
-		runtime.GOMAXPROCS(1)
-	}
-
-	network := latency.Network{
-		Kbps:    0,
-		Latency: 0,
-	}
-
-	wrapperFunc := func(sb *testing.B) {
-		n1, n2, err := ConnectionForNetwork(&network)
+func benchWithNet(testFunc NetworkTestFunc, n *latency.Network) func(*testing.B) {
+	return func(sb *testing.B) {
+		n1, n2, err := ConnectionForNetwork(n)
 		if err != nil {
 			sb.Error(err)
 		}
@@ -68,17 +56,27 @@ func FindNetworkLimit(testFunc NetworkTestFunc) (float64, error) {
 		defer n2.Close()
 		testFunc(sb, n1, n2)
 	}
+}
+
+// FindNetworkLimit benchmarks a function to analyze CPU and network relationship
+func FindNetworkLimit(testFunc NetworkTestFunc, fractionOfMax float64) (int, time.Duration, error) {
+	network := latency.Network{
+		Kbps:    0,
+		Latency: 0,
+	}
+
+	wrapperFunc := benchWithNet(testFunc, &network)
 
 	result := testing.Benchmark(wrapperFunc)
 	if result.N < 1 {
-		return 0.0, fmt.Errorf("failed to run benchmark")
+		return 0, 0, fmt.Errorf("failed to run benchmark")
 	}
 	max := (float64(result.Bytes) * float64(result.N) / 1e6) / result.T.Seconds()
 	fmt.Printf("CPU Bound Limit: %s\n", result)
 
 	current := max
 	network.Latency = 500 * time.Microsecond
-	for current > max*0.9 {
+	for current > max*fractionOfMax {
 		network.Latency *= 2
 		result = testing.Benchmark(wrapperFunc)
 		current = (float64(result.Bytes) * float64(result.N) / 1e6) / result.T.Seconds()
@@ -87,7 +85,7 @@ func FindNetworkLimit(testFunc NetworkTestFunc) (float64, error) {
 
 	network.Kbps = 1024 * 100 // 100Mbps
 	network.Latency /= 2
-	for current > max*0.9 {
+	for current > max*fractionOfMax {
 		network.Kbps /= 2
 		result = testing.Benchmark(wrapperFunc)
 		current = (float64(result.Bytes) * float64(result.N) / 1e6) / result.T.Seconds()
@@ -95,15 +93,27 @@ func FindNetworkLimit(testFunc NetworkTestFunc) (float64, error) {
 	fmt.Printf("Bandwidth Bound Limit: %dKbps\n", network.Kbps)
 	fmt.Printf("Network Bound Limit: %s\n", result)
 
-	// Now, at a network-bounded level (divide bandwidth and latency by 10 as base)
-	// look at utilizations as a function of parallelism.
-	network.Latency *= 10
-	network.Kbps /= 10
+	return network.Kbps, network.Latency, nil
+}
+
+// ParallelismSlowdown tracks how much overhead is incurred on a ntework bound function when parallelism contentention
+// in increased.
+func ParallelismSlowdown(testFunc NetworkTestFunc, kbps int, l time.Duration) (slowdown float64, err error) {
+	maxProcs := runtime.GOMAXPROCS(0)
+	runtime.GOMAXPROCS(maxProcs)
+	if maxProcs > 1 {
+		runtime.GOMAXPROCS(1)
+	}
+
+	network := latency.Network{
+		Kbps:    kbps,
+		Latency: l,
+	}
 	prevBytes := int64(-1)
 	ratio := 1.0
 	for i := 1; i <= maxProcs; i *= 2 {
 		runtime.GOMAXPROCS(i)
-		result = testing.Benchmark(wrapperFunc)
+		result := testing.Benchmark(benchWithNet(testFunc, &network))
 		if prevBytes > 0 {
 			ratio = float64(result.Bytes) / float64(prevBytes)
 		}
