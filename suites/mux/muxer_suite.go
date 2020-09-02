@@ -320,11 +320,12 @@ func tcpPipe(t *testing.T) (net.Conn, net.Conn) {
 
 func SubtestStreamOpenStress(t *testing.T, tr mux.Multiplexer) {
 	wg := new(sync.WaitGroup)
-	defer wg.Wait()
 
 	a, b := tcpPipe(t)
 	defer a.Close()
 	defer b.Close()
+
+	defer wg.Wait()
 
 	wg.Add(1)
 	count := 10000
@@ -343,7 +344,17 @@ func SubtestStreamOpenStress(t *testing.T, tr mux.Multiplexer) {
 					t.Error(err)
 					return
 				}
-				s.Close()
+				err = s.CloseWrite()
+				if err != nil {
+					t.Error(err)
+				}
+				n, err := s.Read([]byte{0})
+				if n != 0 {
+					t.Error("expected to read no bytes")
+				}
+				if err != io.EOF {
+					t.Errorf("expected an EOF, got %s", err)
+				}
 			}
 		}
 
@@ -364,7 +375,7 @@ func SubtestStreamOpenStress(t *testing.T, tr mux.Multiplexer) {
 	recv := make(chan struct{}, count*workers)
 	go func() {
 		defer wg.Done()
-		for {
+		for i := 0; i < count*workers; i++ {
 			str, err := muxb.AcceptStream()
 			if err != nil {
 				break
