@@ -2,6 +2,7 @@ package test
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net"
@@ -138,7 +139,7 @@ func SubtestSimpleWrite(t *testing.T, tr mux.Multiplexer) {
 	go c1.AcceptStream()
 
 	log("creating stream")
-	s1, err := c1.OpenStream()
+	s1, err := c1.OpenStream(context.Background())
 	checkErr(t, err)
 	defer s1.Close()
 
@@ -211,7 +212,7 @@ func SubtestStress(t *testing.T, opt Options) {
 	openStreamAndRW := func(c mux.MuxedConn) {
 		log("openStreamAndRW %p, %d opt.msgNum", c, opt.msgNum)
 
-		s, err := c.OpenStream()
+		s, err := c.OpenStream(context.Background())
 		if err != nil {
 			errs <- fmt.Errorf("Failed to create NewStream: %s", err)
 			return
@@ -339,7 +340,7 @@ func SubtestStreamOpenStress(t *testing.T, tr mux.Multiplexer) {
 		stress := func() {
 			defer wg.Done()
 			for i := 0; i < count; i++ {
-				s, err := muxa.OpenStream()
+				s, err := muxa.OpenStream(context.Background())
 				if err != nil {
 					t.Error(err)
 					return
@@ -422,7 +423,7 @@ func SubtestStreamReset(t *testing.T, tr mux.Multiplexer) {
 			t.Error(err)
 			return
 		}
-		s, err := muxa.OpenStream()
+		s, err := muxa.OpenStream(context.Background())
 		if err != nil {
 			t.Error(err)
 			return

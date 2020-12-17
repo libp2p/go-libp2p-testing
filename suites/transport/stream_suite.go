@@ -206,7 +206,7 @@ func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr,
 	openStreamAndRW := func(c mux.MuxedConn) {
 		debugLog(t, "openStreamAndRW %p, %d opt.MsgNum", c, opt.MsgNum)
 
-		s, err := c.OpenStream()
+		s, err := c.OpenStream(context.Background())
 		if err != nil {
 			errs <- fmt.Errorf("Failed to create NewStream: %s", err)
 			return
@@ -329,7 +329,7 @@ func SubtestStreamOpenStress(t *testing.T, ta, tb transport.Transport, maddr ma.
 			go func() {
 				defer wg.Done()
 				for i := 0; i < count; i++ {
-					s, err := connA.OpenStream()
+					s, err := connA.OpenStream(context.Background())
 					if err != nil {
 						t.Error(err)
 						return
@@ -384,7 +384,7 @@ func SubtestStreamReset(t *testing.T, ta, tb transport.Transport, maddr ma.Multi
 		muxa, err := l.Accept()
 		checkErr(t, err)
 
-		s, err := muxa.OpenStream()
+		s, err := muxa.OpenStream(context.Background())
 		if err != nil {
 			panic(err)
 		}

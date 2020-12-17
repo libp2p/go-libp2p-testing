@@ -126,7 +126,7 @@ func SubtestBasic(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, 
 		t.Fatal(err)
 	}
 
-	s, err := connA.OpenStream()
+	s, err := connA.OpenStream(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -243,7 +243,7 @@ func SubtestPingPong(t *testing.T, ta, tb transport.Transport, maddr ma.Multiadd
 	}
 
 	for i := 0; i < streams; i++ {
-		s, err := connB.OpenStream()
+		s, err := connB.OpenStream(context.Background())
 		if err != nil {
 			t.Error(err)
 			continue
