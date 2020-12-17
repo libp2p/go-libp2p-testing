@@ -41,7 +41,11 @@ func (pk TestBogusPublicKey) Encrypt(b []byte) ([]byte, error) {
 
 // Equals checks whether this key is equal to another
 func (pk TestBogusPublicKey) Equals(k ic.Key) bool {
-	return ic.KeyEqual(pk, k)
+	tk, ok := k.(TestBogusPublicKey)
+	if !ok {
+		return false
+	}
+	return bytes.Equal(pk, tk)
 }
 
 // Raw returns the raw bytes of the key (not wrapped in the
@@ -79,7 +83,11 @@ func (sk TestBogusPrivateKey) Bytes() ([]byte, error) {
 
 // Equals checks whether this key is equal to another
 func (sk TestBogusPrivateKey) Equals(k ic.Key) bool {
-	return ic.KeyEqual(sk, k)
+	tk, ok := k.(TestBogusPublicKey)
+	if !ok {
+		return false
+	}
+	return bytes.Equal(sk, tk)
 }
 
 // Raw returns the raw bytes of the key (not wrapped in the
