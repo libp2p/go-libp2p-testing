@@ -141,8 +141,8 @@ func SubtestBasic(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, 
 		t.Fatalf("failed to write enough data (a->b)")
 		return
 	}
-	err = s.Close()
-	if err != nil {
+
+	if err = s.CloseWrite(); err != nil {
 		t.Fatal(err)
 		return
 	}
@@ -154,6 +154,11 @@ func SubtestBasic(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, 
 	}
 	if !bytes.Equal(testData, buf) {
 		t.Errorf("expected %s, got %s", testData, buf)
+	}
+
+	if err = s.Close(); err != nil {
+		t.Fatal(err)
+		return
 	}
 }
 
@@ -265,7 +270,10 @@ func SubtestPingPong(t *testing.T, ta, tb transport.Transport, maddr ma.Multiadd
 				t.Error("failed to write enough data (a->b)")
 				return
 			}
-			s.Close()
+			if err = s.CloseWrite(); err != nil {
+				t.Fatal(err)
+				return
+			}
 
 			ret, err := ioutil.ReadAll(s)
 			if err != nil {
@@ -275,6 +283,11 @@ func SubtestPingPong(t *testing.T, ta, tb transport.Transport, maddr ma.Multiadd
 			}
 			if !bytes.Equal(data, ret) {
 				t.Errorf("expected %q, got %q", string(data), string(ret))
+			}
+
+			if err = s.Close(); err != nil {
+				t.Fatal(err)
+				return
 			}
 		}(i)
 	}

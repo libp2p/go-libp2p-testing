@@ -55,7 +55,7 @@ type Options struct {
 }
 
 func fullClose(t *testing.T, s mux.MuxedStream) {
-	if err := s.Close(); err != nil {
+	if err := s.CloseWrite(); err != nil {
 		t.Error(err)
 		s.Reset()
 		return
@@ -66,6 +66,9 @@ func fullClose(t *testing.T, s mux.MuxedStream) {
 	}
 	if len(b) != 0 {
 		t.Error("expected to be done reading")
+	}
+	if err := s.Close(); err != nil {
+		t.Error(err)
 	}
 }
 
