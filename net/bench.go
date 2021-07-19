@@ -43,7 +43,6 @@ func ConnectionForNetwork(n *latency.Network) (n1, n2 *WriteTrackedConn, err err
 		ac, _ := slowListener.Accept()
 		slowListener.Close()
 		n2 = &WriteTrackedConn{ac, atomic.Uint32{}}
-		return
 	}()
 	baseDialer := net.Dialer{}
 	dialer := n.ContextDialer(baseDialer.DialContext)

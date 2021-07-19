@@ -149,7 +149,8 @@ func SubtestRW(t *testing.T, at, bt sec.SecureTransport, ap, bp peer.ID) {
 		c, err := at.SecureInbound(ctx, a)
 		if err != nil {
 			a.Close()
-			t.Fatal(err)
+			t.Error(err)
+			return
 		}
 
 		if c.LocalPeer() != ap {
@@ -167,7 +168,8 @@ func SubtestRW(t *testing.T, at, bt sec.SecureTransport, ap, bp peer.ID) {
 		c, err := bt.SecureOutbound(ctx, b, ap)
 		if err != nil {
 			b.Close()
-			t.Fatal(err)
+			t.Error(err)
+			return
 		}
 
 		if c.RemotePeer() != ap {
@@ -197,7 +199,8 @@ func SubtestKeys(t *testing.T, at, bt sec.SecureTransport, ap, bp peer.ID) {
 		c, err := at.SecureInbound(ctx, a)
 		if err != nil {
 			a.Close()
-			t.Fatal(err)
+			t.Error(err)
+			return
 		}
 		defer c.Close()
 
@@ -220,7 +223,8 @@ func SubtestKeys(t *testing.T, at, bt sec.SecureTransport, ap, bp peer.ID) {
 		c, err := bt.SecureOutbound(ctx, b, ap)
 		if err != nil {
 			b.Close()
-			t.Fatal(err)
+			t.Error(err)
+			return
 		}
 		defer c.Close()
 
@@ -251,18 +255,16 @@ func SubtestWrongPeer(t *testing.T, at, bt sec.SecureTransport, ap, bp peer.ID) 
 	go func() {
 		defer wg.Done()
 		defer a.Close()
-		_, err := at.SecureInbound(ctx, a)
-		if err == nil {
-			t.Fatal("conection should have failed")
+		if _, err := at.SecureInbound(ctx, a); err == nil {
+			t.Error("connection should have failed")
 		}
 	}()
 
 	go func() {
 		defer wg.Done()
 		defer b.Close()
-		_, err := bt.SecureOutbound(ctx, b, bp)
-		if err == nil {
-			t.Fatal("connection should have failed")
+		if _, err := bt.SecureOutbound(ctx, b, bp); err == nil {
+			t.Error("connection should have failed")
 		}
 	}()
 	wg.Wait()
@@ -278,9 +280,8 @@ func SubtestCancelHandshakeOutbound(t *testing.T, at, bt sec.SecureTransport, ap
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		_, err := at.SecureOutbound(ctx, a, ap)
-		if err == nil {
-			t.Fatal("connection should have failed")
+		if _, err := at.SecureOutbound(ctx, a, ap); err == nil {
+			t.Error("connection should have failed")
 		}
 	}()
 	time.Sleep(time.Millisecond)
@@ -288,9 +289,8 @@ func SubtestCancelHandshakeOutbound(t *testing.T, at, bt sec.SecureTransport, ap
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		_, err := bt.SecureInbound(ctx, b)
-		if err == nil {
-			t.Fatal("connection should have failed")
+		if _, err := bt.SecureInbound(ctx, b); err == nil {
+			t.Error("connection should have failed")
 		}
 	}()
 
@@ -308,9 +308,8 @@ func SubtestCancelHandshakeInbound(t *testing.T, at, bt sec.SecureTransport, ap,
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		_, err := at.SecureInbound(ctx, a)
-		if err == nil {
-			t.Fatal("connection should have failed")
+		if _, err := at.SecureInbound(ctx, a); err == nil {
+			t.Error("connection should have failed")
 		}
 	}()
 	time.Sleep(time.Millisecond)
@@ -318,9 +317,8 @@ func SubtestCancelHandshakeInbound(t *testing.T, at, bt sec.SecureTransport, ap,
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		_, err := bt.SecureOutbound(ctx, b, bp)
-		if err == nil {
-			t.Fatal("connection should have failed")
+		if _, err := bt.SecureOutbound(ctx, b, bp); err == nil {
+			t.Error("connection should have failed")
 		}
 	}()
 
@@ -343,7 +341,8 @@ func SubtestStream(t *testing.T, at, bt sec.SecureTransport, ap, bp peer.ID) {
 
 		c, err := at.SecureInbound(ctx, a)
 		if err != nil {
-			t.Fatal(err)
+			t.Error(err)
+			return
 		}
 
 		var swg sync.WaitGroup
@@ -364,7 +363,8 @@ func SubtestStream(t *testing.T, at, bt sec.SecureTransport, ap, bp peer.ID) {
 		defer wg.Done()
 		c, err := bt.SecureOutbound(ctx, b, ap)
 		if err != nil {
-			t.Fatal(err)
+			t.Error(err)
+			return
 		}
 		io.Copy(c, c)
 		c.Close()

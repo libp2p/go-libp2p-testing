@@ -161,7 +161,7 @@ func SubtestSimpleWrite(t *testing.T, tr mux.Multiplexer) {
 
 func SubtestStress(t *testing.T, opt Options) {
 	msgsize := 1 << 11
-	errs := make(chan error, 0) // dont block anything.
+	errs := make(chan error) // dont block anything.
 
 	rateLimitN := 5000 // max of 5k funcs, because -race has 8k max.
 	rateLimitChan := make(chan struct{}, rateLimitN)
@@ -214,7 +214,7 @@ func SubtestStress(t *testing.T, opt Options) {
 
 		s, err := c.OpenStream(context.Background())
 		if err != nil {
-			errs <- fmt.Errorf("Failed to create NewStream: %s", err)
+			errs <- fmt.Errorf("failed to create NewStream: %s", err)
 			return
 		}
 
@@ -335,7 +335,8 @@ func SubtestStreamOpenStress(t *testing.T, tr mux.Multiplexer) {
 		defer wg.Done()
 		muxa, err := tr.NewConn(a, true)
 		if err != nil {
-			t.Fatal(err)
+			t.Error(err)
+			return
 		}
 		stress := func() {
 			defer wg.Done()
