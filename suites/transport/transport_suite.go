@@ -8,7 +8,6 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/libp2p/go-libp2p-core/mux"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/transport"
 
@@ -16,11 +15,6 @@ import (
 )
 
 var testData = []byte("this is some test data")
-
-type streamAndConn struct {
-	stream mux.MuxedStream
-	conn   transport.CapableConn
-}
 
 func SubtestProtocols(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
 	rawIPAddr, _ := ma.NewMultiaddr("/ip4/1.2.3.4")
@@ -271,7 +265,7 @@ func SubtestPingPong(t *testing.T, ta, tb transport.Transport, maddr ma.Multiadd
 				return
 			}
 			if err = s.CloseWrite(); err != nil {
-				t.Fatal(err)
+				t.Error(err)
 				return
 			}
 
@@ -286,7 +280,7 @@ func SubtestPingPong(t *testing.T, ta, tb transport.Transport, maddr ma.Multiadd
 			}
 
 			if err = s.Close(); err != nil {
-				t.Fatal(err)
+				t.Error(err)
 				return
 			}
 		}(i)

@@ -158,7 +158,7 @@ func goServe(t *testing.T, l transport.Listener) (done func()) {
 
 func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID, opt Options) {
 	msgsize := 1 << 11
-	errs := make(chan error, 0) // dont block anything.
+	errs := make(chan error) // dont block anything.
 
 	rateLimitN := 5000 // max of 5k funcs, because -race has 8k max.
 	rateLimitChan := make(chan struct{}, rateLimitN)
@@ -211,7 +211,7 @@ func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr,
 
 		s, err := c.OpenStream(context.Background())
 		if err != nil {
-			errs <- fmt.Errorf("Failed to create NewStream: %s", err)
+			errs <- fmt.Errorf("failed to create NewStream: %s", err)
 			return
 		}
 
