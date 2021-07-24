@@ -138,12 +138,12 @@ func serve(t *testing.T, l transport.Listener) {
 		if err != nil {
 			return
 		}
+		defer c.Close()
 
 		wg.Add(1)
 		debugLog(t, "accepted connection")
 		go func() {
 			defer wg.Done()
-			defer c.Close()
 			echo(t, c)
 		}()
 	}
