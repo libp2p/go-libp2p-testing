@@ -138,12 +138,12 @@ func serve(t *testing.T, l transport.Listener) {
 		if err != nil {
 			return
 		}
+		defer c.Close()
 
 		wg.Add(1)
 		debugLog(t, "accepted connection")
 		go func() {
 			defer wg.Done()
-			defer c.Close()
 			echo(t, c)
 		}()
 	}
@@ -241,13 +241,13 @@ func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr,
 			t.Error(err)
 			return
 		}
+		defer c.Close()
 
 		// serve the outgoing conn, because some muxers assume
 		// that we _always_ call serve. (this is an error?)
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			defer c.Close()
 			debugLog(t, "serving connection")
 			echo(t, c)
 		}()
