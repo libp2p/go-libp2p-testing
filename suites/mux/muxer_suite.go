@@ -23,6 +23,7 @@ import (
 )
 
 var randomness []byte
+var Subtests map[string]TransportTest
 
 func init() {
 	// read 1MB of randomness
@@ -30,6 +31,15 @@ func init() {
 	if _, err := crand.Read(randomness); err != nil {
 		panic(err)
 	}
+
+	Subtests = make(map[string]TransportTest)
+	for _, f := range subtests {
+		Subtests[getFunctionName(f)] = f
+	}
+}
+
+func getFunctionName(i interface{}) string {
+	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
 }
 
 type Options struct {
@@ -542,7 +552,7 @@ func SubtestStress1Conn100Stream100Msg10MB(t *testing.T, tr mux.Multiplexer) {
 }
 
 // Subtests are all the subtests run by SubtestAll
-var Subtests = []TransportTest{
+var subtests = []TransportTest{
 	SubtestSimpleWrite,
 	SubtestWriteAfterClose,
 	SubtestStress1Conn1Stream1Msg,
@@ -555,15 +565,11 @@ var Subtests = []TransportTest{
 	SubtestStreamReset,
 }
 
-func getFunctionName(i interface{}) string {
-	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
-}
-
 // SubtestAll runs all the stream multiplexer tests against the target
 // transport.
 func SubtestAll(t *testing.T, tr mux.Multiplexer) {
-	for _, f := range Subtests {
-		t.Run(getFunctionName(f), func(t *testing.T) {
+	for name, f := range Subtests {
+		t.Run(name, func(t *testing.T) {
 			f(t, tr)
 		})
 	}
