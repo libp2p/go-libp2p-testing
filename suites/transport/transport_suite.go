@@ -16,27 +16,27 @@ import (
 
 var testData = []byte("this is some test data")
 
-func SubtestProtocols(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, peerA peer.ID) {
+func SubtestProtocols(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr, _ peer.ID) {
 	rawIPAddr, _ := ma.NewMultiaddr("/ip4/1.2.3.4")
 	if ta.CanDial(rawIPAddr) || tb.CanDial(rawIPAddr) {
 		t.Error("nothing should be able to dial raw IP")
 	}
 
-	tprotos := make(map[int]bool)
+	tprotos := make(map[int]struct{})
 	for _, p := range ta.Protocols() {
-		tprotos[p] = true
+		tprotos[p.Code] = struct{}{}
 	}
 
 	if !ta.Proxy() {
 		protos := maddr.Protocols()
 		proto := protos[len(protos)-1]
-		if !tprotos[proto.Code] {
+		if _, ok := tprotos[proto.Code]; !ok {
 			t.Errorf("transport should have reported that it supports protocol '%s' (%d)", proto.Name, proto.Code)
 		}
 	} else {
-		found := false
+		var found bool
 		for _, proto := range maddr.Protocols() {
-			if tprotos[proto.Code] {
+			if _, ok := tprotos[proto.Code]; !ok {
 				found = true
 				break
 			}
