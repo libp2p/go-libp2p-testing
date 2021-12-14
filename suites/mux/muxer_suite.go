@@ -518,10 +518,10 @@ func SubtestStress1Conn100Stream100Msg(t *testing.T, tr mux.Multiplexer) {
 	})
 }
 
-func SubtestStress50Conn10Stream50Msg(t *testing.T, tr mux.Multiplexer) {
+func SubtestStress10Conn10Stream50Msg(t *testing.T, tr mux.Multiplexer) {
 	SubtestStress(t, Options{
 		tr:        tr,
-		connNum:   50,
+		connNum:   10,
 		streamNum: 10,
 		msgNum:    50,
 		msgMax:    100,
@@ -558,7 +558,7 @@ var subtests = []TransportTest{
 	SubtestStress1Conn1Stream1Msg,
 	SubtestStress1Conn1Stream100Msg,
 	SubtestStress1Conn100Stream100Msg,
-	SubtestStress50Conn10Stream50Msg,
+	SubtestStress10Conn10Stream50Msg,
 	SubtestStress1Conn1000Stream10Msg,
 	SubtestStress1Conn100Stream100Msg10MB,
 	SubtestStreamOpenStress,
