@@ -108,7 +108,7 @@ func GoServe(t *testing.T, tr mux.Multiplexer, l net.Listener) (done func()) {
 			}
 
 			log("accepted connection")
-			sc1, err := tr.NewConn(c1, true)
+			sc1, err := tr.NewConn(c1, true, nil)
 			checkErr(t, err)
 			go func() {
 				for {
@@ -140,7 +140,7 @@ func SubtestSimpleWrite(t *testing.T, tr mux.Multiplexer) {
 	defer nc1.Close()
 
 	log("wrapping conn")
-	c1, err := tr.NewConn(nc1, false)
+	c1, err := tr.NewConn(nc1, false, nil)
 	checkErr(t, err)
 	defer c1.Close()
 
@@ -254,7 +254,7 @@ func SubtestStress(t *testing.T, opt Options) {
 			return
 		}
 
-		c, err := opt.tr.NewConn(nc, false)
+		c, err := opt.tr.NewConn(nc, false, nil)
 		if err != nil {
 			t.Fatal(fmt.Errorf("a.AddConn(%s <--> %s): %s", nc.LocalAddr(), nc.RemoteAddr(), err))
 			return
@@ -343,7 +343,7 @@ func SubtestStreamOpenStress(t *testing.T, tr mux.Multiplexer) {
 	workers := 5
 	go func() {
 		defer wg.Done()
-		muxa, err := tr.NewConn(a, true)
+		muxa, err := tr.NewConn(a, true, nil)
 		if err != nil {
 			t.Error(err)
 			return
@@ -376,7 +376,7 @@ func SubtestStreamOpenStress(t *testing.T, tr mux.Multiplexer) {
 		}
 	}()
 
-	muxb, err := tr.NewConn(b, false)
+	muxb, err := tr.NewConn(b, false, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -429,7 +429,7 @@ func SubtestStreamReset(t *testing.T, tr mux.Multiplexer) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		muxa, err := tr.NewConn(a, true)
+		muxa, err := tr.NewConn(a, true, nil)
 		if err != nil {
 			t.Error(err)
 			return
@@ -449,7 +449,7 @@ func SubtestStreamReset(t *testing.T, tr mux.Multiplexer) {
 		s.Close()
 	}()
 
-	muxb, err := tr.NewConn(b, false)
+	muxb, err := tr.NewConn(b, false, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -465,10 +465,10 @@ func SubtestStreamReset(t *testing.T, tr mux.Multiplexer) {
 func SubtestWriteAfterClose(t *testing.T, tr mux.Multiplexer) {
 	a, b := tcpPipe(t)
 
-	muxa, err := tr.NewConn(a, true)
+	muxa, err := tr.NewConn(a, true, nil)
 	checkErr(t, err)
 
-	muxb, err := tr.NewConn(b, false)
+	muxb, err := tr.NewConn(b, false, nil)
 	checkErr(t, err)
 
 	err = muxa.Close()
