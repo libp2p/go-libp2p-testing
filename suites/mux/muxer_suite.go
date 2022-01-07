@@ -18,7 +18,7 @@ import (
 	crand "crypto/rand"
 	mrand "math/rand"
 
-	"github.com/libp2p/go-libp2p-core/mux"
+	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-testing/ci"
 )
 
@@ -43,7 +43,7 @@ func getFunctionName(i interface{}) string {
 }
 
 type Options struct {
-	tr        mux.Multiplexer
+	tr        network.Multiplexer
 	connNum   int
 	streamNum int
 	msgNum    int
@@ -74,7 +74,7 @@ func log(s string, v ...interface{}) {
 	}
 }
 
-func echoStream(s mux.MuxedStream) {
+func echoStream(s network.MuxedStream) {
 	defer s.Close()
 	log("accepted stream")
 	io.Copy(&LogWriter{s}, s) // echo everything
@@ -92,7 +92,7 @@ func (lw *LogWriter) Write(buf []byte) (int, error) {
 	return lw.W.Write(buf)
 }
 
-func GoServe(t *testing.T, tr mux.Multiplexer, l net.Listener) (done func()) {
+func GoServe(t *testing.T, tr network.Multiplexer, l net.Listener) (done func()) {
 	closed := make(chan struct{}, 1)
 
 	go func() {
@@ -127,7 +127,7 @@ func GoServe(t *testing.T, tr mux.Multiplexer, l net.Listener) (done func()) {
 	}
 }
 
-func SubtestSimpleWrite(t *testing.T, tr mux.Multiplexer) {
+func SubtestSimpleWrite(t *testing.T, tr network.Multiplexer) {
 	l, err := net.Listen("tcp", "localhost:0")
 	checkErr(t, err)
 	log("listening at %s", l.Addr().String())
@@ -185,7 +185,7 @@ func SubtestStress(t *testing.T, opt Options) {
 		rateLimitChan <- struct{}{}
 	}
 
-	writeStream := func(s mux.MuxedStream, bufs chan<- []byte) {
+	writeStream := func(s network.MuxedStream, bufs chan<- []byte) {
 		log("writeStream %p, %d msgNum", s, opt.msgNum)
 
 		for i := 0; i < opt.msgNum; i++ {
@@ -199,7 +199,7 @@ func SubtestStress(t *testing.T, opt Options) {
 		}
 	}
 
-	readStream := func(s mux.MuxedStream, bufs <-chan []byte) {
+	readStream := func(s network.MuxedStream, bufs <-chan []byte) {
 		log("readStream %p, %d msgNum", s, opt.msgNum)
 
 		buf2 := make([]byte, msgsize)
@@ -219,7 +219,7 @@ func SubtestStress(t *testing.T, opt Options) {
 		}
 	}
 
-	openStreamAndRW := func(c mux.MuxedConn) {
+	openStreamAndRW := func(c network.MuxedConn) {
 		log("openStreamAndRW %p, %d opt.msgNum", c, opt.msgNum)
 
 		s, err := c.OpenStream(context.Background())
@@ -329,7 +329,7 @@ func tcpPipe(t *testing.T) (net.Conn, net.Conn) {
 	return con1, con2
 }
 
-func SubtestStreamOpenStress(t *testing.T, tr mux.Multiplexer) {
+func SubtestStreamOpenStress(t *testing.T, tr network.Multiplexer) {
 	wg := new(sync.WaitGroup)
 
 	a, b := tcpPipe(t)
@@ -418,7 +418,7 @@ func SubtestStreamOpenStress(t *testing.T, tr mux.Multiplexer) {
 	}
 }
 
-func SubtestStreamReset(t *testing.T, tr mux.Multiplexer) {
+func SubtestStreamReset(t *testing.T, tr network.Multiplexer) {
 	wg := new(sync.WaitGroup)
 	defer wg.Wait()
 
@@ -442,7 +442,7 @@ func SubtestStreamReset(t *testing.T, tr mux.Multiplexer) {
 		time.Sleep(time.Millisecond * 50)
 
 		_, err = s.Write([]byte("foo"))
-		if err != mux.ErrReset {
+		if err != network.ErrReset {
 			t.Error("should have been stream reset")
 		}
 
@@ -462,7 +462,7 @@ func SubtestStreamReset(t *testing.T, tr mux.Multiplexer) {
 }
 
 // check that Close also closes the underlying net.Conn
-func SubtestWriteAfterClose(t *testing.T, tr mux.Multiplexer) {
+func SubtestWriteAfterClose(t *testing.T, tr network.Multiplexer) {
 	a, b := tcpPipe(t)
 
 	muxa, err := tr.NewConn(a, true, nil)
@@ -485,7 +485,7 @@ func SubtestWriteAfterClose(t *testing.T, tr mux.Multiplexer) {
 	}
 }
 
-func SubtestStress1Conn1Stream1Msg(t *testing.T, tr mux.Multiplexer) {
+func SubtestStress1Conn1Stream1Msg(t *testing.T, tr network.Multiplexer) {
 	SubtestStress(t, Options{
 		tr:        tr,
 		connNum:   1,
@@ -496,7 +496,7 @@ func SubtestStress1Conn1Stream1Msg(t *testing.T, tr mux.Multiplexer) {
 	})
 }
 
-func SubtestStress1Conn1Stream100Msg(t *testing.T, tr mux.Multiplexer) {
+func SubtestStress1Conn1Stream100Msg(t *testing.T, tr network.Multiplexer) {
 	SubtestStress(t, Options{
 		tr:        tr,
 		connNum:   1,
@@ -507,7 +507,7 @@ func SubtestStress1Conn1Stream100Msg(t *testing.T, tr mux.Multiplexer) {
 	})
 }
 
-func SubtestStress1Conn100Stream100Msg(t *testing.T, tr mux.Multiplexer) {
+func SubtestStress1Conn100Stream100Msg(t *testing.T, tr network.Multiplexer) {
 	SubtestStress(t, Options{
 		tr:        tr,
 		connNum:   1,
@@ -518,7 +518,7 @@ func SubtestStress1Conn100Stream100Msg(t *testing.T, tr mux.Multiplexer) {
 	})
 }
 
-func SubtestStress10Conn10Stream50Msg(t *testing.T, tr mux.Multiplexer) {
+func SubtestStress10Conn10Stream50Msg(t *testing.T, tr network.Multiplexer) {
 	SubtestStress(t, Options{
 		tr:        tr,
 		connNum:   10,
@@ -529,7 +529,7 @@ func SubtestStress10Conn10Stream50Msg(t *testing.T, tr mux.Multiplexer) {
 	})
 }
 
-func SubtestStress1Conn1000Stream10Msg(t *testing.T, tr mux.Multiplexer) {
+func SubtestStress1Conn1000Stream10Msg(t *testing.T, tr network.Multiplexer) {
 	SubtestStress(t, Options{
 		tr:        tr,
 		connNum:   1,
@@ -540,7 +540,7 @@ func SubtestStress1Conn1000Stream10Msg(t *testing.T, tr mux.Multiplexer) {
 	})
 }
 
-func SubtestStress1Conn100Stream100Msg10MB(t *testing.T, tr mux.Multiplexer) {
+func SubtestStress1Conn100Stream100Msg10MB(t *testing.T, tr network.Multiplexer) {
 	SubtestStress(t, Options{
 		tr:        tr,
 		connNum:   1,
@@ -567,7 +567,7 @@ var subtests = []TransportTest{
 
 // SubtestAll runs all the stream multiplexer tests against the target
 // transport.
-func SubtestAll(t *testing.T, tr mux.Multiplexer) {
+func SubtestAll(t *testing.T, tr network.Multiplexer) {
 	for name, f := range Subtests {
 		t.Run(name, func(t *testing.T) {
 			f(t, tr)
@@ -576,4 +576,4 @@ func SubtestAll(t *testing.T, tr mux.Multiplexer) {
 }
 
 // TransportTest is a stream multiplex transport test case
-type TransportTest func(t *testing.T, tr mux.Multiplexer)
+type TransportTest func(t *testing.T, tr network.Multiplexer)

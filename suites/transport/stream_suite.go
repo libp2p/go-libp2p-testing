@@ -15,7 +15,7 @@ import (
 	crand "crypto/rand"
 	mrand "math/rand"
 
-	"github.com/libp2p/go-libp2p-core/mux"
+	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/transport"
 	"github.com/libp2p/go-libp2p-testing/race"
@@ -53,7 +53,7 @@ type Options struct {
 	MsgMax    int
 }
 
-func fullClose(t *testing.T, s mux.MuxedStream) {
+func fullClose(t *testing.T, s network.MuxedStream) {
 	if err := s.CloseWrite(); err != nil {
 		t.Error(err)
 		s.Reset()
@@ -87,7 +87,7 @@ func debugLog(t *testing.T, s string, args ...interface{}) {
 	}
 }
 
-func echoStream(t *testing.T, s mux.MuxedStream) {
+func echoStream(t *testing.T, s network.MuxedStream) {
 	// echo everything
 	var err error
 	if VerboseDebugging {
@@ -164,7 +164,7 @@ func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr,
 		rateLimitChan <- struct{}{}
 	}
 
-	writeStream := func(s mux.MuxedStream, bufs chan<- []byte) {
+	writeStream := func(s network.MuxedStream, bufs chan<- []byte) {
 		debugLog(t, "writeStream %p, %d MsgNum", s, opt.MsgNum)
 
 		for i := 0; i < opt.MsgNum; i++ {
@@ -178,7 +178,7 @@ func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr,
 		}
 	}
 
-	readStream := func(s mux.MuxedStream, bufs <-chan []byte) {
+	readStream := func(s network.MuxedStream, bufs <-chan []byte) {
 		debugLog(t, "readStream %p, %d MsgNum", s, opt.MsgNum)
 
 		buf2 := make([]byte, msgsize)
@@ -198,7 +198,7 @@ func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr,
 		}
 	}
 
-	openStreamAndRW := func(c mux.MuxedConn) {
+	openStreamAndRW := func(c network.MuxedConn) {
 		debugLog(t, "openStreamAndRW %p, %d opt.MsgNum", c, opt.MsgNum)
 
 		s, err := c.OpenStream(context.Background())
