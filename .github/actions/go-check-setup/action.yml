@@ -1,0 +1,6 @@
+runs:
+  using: "composite"
+  steps:
+    - name: Install mockgen
+      shell: bash
+      run: go install github.com/golang/mock/mockgen@v1.6.0
