@@ -7,6 +7,7 @@ require (
 	github.com/ipfs/go-log/v2 v2.5.0
 	github.com/libp2p/go-libp2p-core v0.14.0
 	github.com/multiformats/go-multiaddr v0.4.1
+	github.com/stretchr/testify v1.7.0
 	go.uber.org/atomic v1.7.0
 	google.golang.org/grpc v1.31.1
 )

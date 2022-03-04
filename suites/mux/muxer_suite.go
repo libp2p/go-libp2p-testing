@@ -3,8 +3,10 @@ package test
 import (
 	"bytes"
 	"context"
+	crand "crypto/rand"
 	"fmt"
 	"io"
+	mrand "math/rand"
 	"net"
 	"os"
 	"reflect"
@@ -15,11 +17,10 @@ import (
 	"testing"
 	"time"
 
-	crand "crypto/rand"
-	mrand "math/rand"
-
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-testing/ci"
+
+	"github.com/stretchr/testify/require"
 )
 
 var randomness []byte
@@ -160,12 +161,10 @@ func SubtestSimpleWrite(t *testing.T, tr network.Multiplexer) {
 
 	buf2 := make([]byte, len(buf1))
 	log("reading %d bytes from stream (echoed)", len(buf2))
-	_, err = s1.Read(buf2)
+	_, err = io.ReadFull(s1, buf2)
 	checkErr(t, err)
 
-	if string(buf2) != string(buf1) {
-		t.Errorf("buf1 and buf2 not equal: %s != %s", string(buf1), string(buf2))
-	}
+	require.Equal(t, buf1, buf2)
 	log("done")
 }
 
