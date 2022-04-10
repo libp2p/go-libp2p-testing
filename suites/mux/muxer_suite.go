@@ -476,14 +476,19 @@ func SubtestStreamReset(t *testing.T, tr network.Multiplexer) {
 	defer b.Close()
 
 	wg.Add(1)
+	scopea := &peerScope{}
+	muxa, err := tr.NewConn(a, true, scopea)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer func() {
+		muxa.Close()
+		scopea.Check(t)
+	}()
+
 	go func() {
 		defer wg.Done()
-		scope := &peerScope{}
-		muxa, err := tr.NewConn(a, true, scope)
-		if err != nil {
-			t.Error(err)
-			return
-		}
 		s, err := muxa.OpenStream(context.Background())
 		if err != nil {
 			t.Error(err)
@@ -496,17 +501,16 @@ func SubtestStreamReset(t *testing.T, tr network.Multiplexer) {
 			t.Error("should have been stream reset")
 		}
 		s.Close()
-		scope.Check(t)
 	}()
 
-	scope := &peerScope{}
-	muxb, err := tr.NewConn(b, false, scope)
+	scopeb := &peerScope{}
+	muxb, err := tr.NewConn(b, false, scopeb)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer func() {
 		muxb.Close()
-		scope.Check(t)
+		scopeb.Check(t)
 	}()
 
 	str, err := muxb.AcceptStream()
