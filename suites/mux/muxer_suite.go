@@ -50,7 +50,6 @@ type peerScope struct {
 }
 
 func (p *peerScope) ReserveMemory(size int, _ uint8) error {
-	fmt.Println("reserving", size)
 	p.mx.Lock()
 	p.memory += size
 	p.mx.Unlock()
@@ -58,7 +57,6 @@ func (p *peerScope) ReserveMemory(size int, _ uint8) error {
 }
 
 func (p *peerScope) ReleaseMemory(size int) {
-	fmt.Println("releasing", size)
 	p.mx.Lock()
 	defer p.mx.Unlock()
 	if p.memory < size {
