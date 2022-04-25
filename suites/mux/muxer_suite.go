@@ -8,7 +8,6 @@ import (
 	"io"
 	mrand "math/rand"
 	"net"
-	"os"
 	"reflect"
 	"runtime"
 	"runtime/debug"
@@ -104,28 +103,9 @@ func checkErr(t *testing.T, err error) {
 	}
 }
 
-func log(s string, v ...interface{}) {
-	if testing.Verbose() && !ci.IsRunning() {
-		fmt.Fprintf(os.Stderr, "> "+s+"\n", v...)
-	}
-}
-
 func echoStream(s network.MuxedStream) {
 	defer s.Close()
-	log("accepted stream")
-	io.Copy(&LogWriter{s}, s) // echo everything
-	log("closing stream")
-}
-
-type LogWriter struct {
-	W io.Writer
-}
-
-func (lw *LogWriter) Write(buf []byte) (int, error) {
-	if testing.Verbose() && !ci.IsRunning() {
-		log("logwriter: writing %d bytes", len(buf))
-	}
-	return lw.W.Write(buf)
+	io.Copy(s, s) // echo everything
 }
 
 func GoServe(t *testing.T, tr network.Multiplexer, l net.Listener) (done func()) {
@@ -143,7 +123,6 @@ func GoServe(t *testing.T, tr network.Multiplexer, l net.Listener) (done func())
 				}
 			}
 
-			log("accepted connection")
 			sc1, err := tr.NewConn(c1, true, nil)
 			checkErr(t, err)
 			go func() {
@@ -166,16 +145,13 @@ func GoServe(t *testing.T, tr network.Multiplexer, l net.Listener) (done func())
 func SubtestSimpleWrite(t *testing.T, tr network.Multiplexer) {
 	l, err := net.Listen("tcp", "localhost:0")
 	checkErr(t, err)
-	log("listening at %s", l.Addr().String())
 	done := GoServe(t, tr, l)
 	defer done()
 
-	log("dialing to %s", l.Addr().String())
 	nc1, err := net.Dial("tcp", l.Addr().String())
 	checkErr(t, err)
 	defer nc1.Close()
 
-	log("wrapping conn")
 	scope := &peerScope{}
 	c1, err := tr.NewConn(nc1, false, scope)
 	checkErr(t, err)
@@ -188,23 +164,19 @@ func SubtestSimpleWrite(t *testing.T, tr network.Multiplexer) {
 	// that we _always_ call serve. (this is an error?)
 	go c1.AcceptStream()
 
-	log("creating stream")
 	s1, err := c1.OpenStream(context.Background())
 	checkErr(t, err)
 	defer s1.Close()
 
 	buf1 := randBuf(4096)
-	log("writing %d bytes to stream", len(buf1))
 	_, err = s1.Write(buf1)
 	checkErr(t, err)
 
 	buf2 := make([]byte, len(buf1))
-	log("reading %d bytes from stream (echoed)", len(buf2))
 	_, err = io.ReadFull(s1, buf2)
 	checkErr(t, err)
 
 	require.Equal(t, buf1, buf2)
-	log("done")
 }
 
 func SubtestStress(t *testing.T, opt Options) {
@@ -224,12 +196,9 @@ func SubtestStress(t *testing.T, opt Options) {
 	}
 
 	writeStream := func(s network.MuxedStream, bufs chan<- []byte) {
-		log("writeStream %p, %d msgNum", s, opt.msgNum)
-
 		for i := 0; i < opt.msgNum; i++ {
 			buf := randBuf(msgsize)
 			bufs <- buf
-			log("%p writing %d bytes (message %d/%d #%x)", s, len(buf), i, opt.msgNum, buf[:3])
 			if _, err := s.Write(buf); err != nil {
 				errs <- fmt.Errorf("s.Write(buf): %s", err)
 				continue
@@ -238,17 +207,10 @@ func SubtestStress(t *testing.T, opt Options) {
 	}
 
 	readStream := func(s network.MuxedStream, bufs <-chan []byte) {
-		log("readStream %p, %d msgNum", s, opt.msgNum)
-
 		buf2 := make([]byte, msgsize)
-		i := 0
 		for buf1 := range bufs {
-			i++
-			log("%p reading %d bytes (message %d/%d #%x)", s, len(buf1), i-1, opt.msgNum, buf1[:3])
-
 			if _, err := io.ReadFull(s, buf2); err != nil {
 				errs <- fmt.Errorf("io.ReadFull(s, buf2): %s", err)
-				log("%p failed to read %d bytes (message %d/%d #%x)", s, len(buf1), i-1, opt.msgNum, buf1[:3])
 				continue
 			}
 			if !bytes.Equal(buf1, buf2) {
@@ -258,8 +220,6 @@ func SubtestStress(t *testing.T, opt Options) {
 	}
 
 	openStreamAndRW := func(c network.MuxedConn) {
-		log("openStreamAndRW %p, %d opt.msgNum", c, opt.msgNum)
-
 		s, err := c.OpenStream(context.Background())
 		if err != nil {
 			errs <- fmt.Errorf("failed to create NewStream: %s", err)
@@ -277,8 +237,6 @@ func SubtestStress(t *testing.T, opt Options) {
 	}
 
 	openConnAndRW := func() {
-		log("openConnAndRW")
-
 		l, err := net.Listen("tcp", "localhost:0")
 		checkErr(t, err)
 		done := GoServe(t, opt.tr, l)
@@ -302,7 +260,6 @@ func SubtestStress(t *testing.T, opt Options) {
 		// serve the outgoing conn, because some muxers assume
 		// that we _always_ call serve. (this is an error?)
 		go func() {
-			log("serving connection")
 			for {
 				str, err := c.AcceptStream()
 				if err != nil {
@@ -326,8 +283,6 @@ func SubtestStress(t *testing.T, opt Options) {
 	}
 
 	openConnsAndRW := func() {
-		log("openConnsAndRW, %d conns", opt.connNum)
-
 		var wg sync.WaitGroup
 		for i := 0; i < opt.connNum; i++ {
 			wg.Add(1)
