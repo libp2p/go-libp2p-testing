@@ -23,10 +23,6 @@ import (
 	ma "github.com/multiformats/go-multiaddr"
 )
 
-// VerboseDebugging can be set to true to enable verbose debug logging in the
-// stream stress tests.
-var VerboseDebugging = false
-
 var randomness []byte
 
 var StressTestTimeout = 1 * time.Minute
@@ -81,35 +77,11 @@ func randBuf(size int) []byte {
 	return randomness[start : start+size]
 }
 
-func debugLog(t *testing.T, s string, args ...interface{}) {
-	if VerboseDebugging {
-		t.Logf(s, args...)
-	}
-}
-
 func echoStream(t *testing.T, s network.MuxedStream) {
 	// echo everything
-	var err error
-	if VerboseDebugging {
-		t.Logf("accepted stream")
-		_, err = io.Copy(&logWriter{t, s}, s)
-		t.Log("closing stream")
-	} else {
-		_, err = io.Copy(s, s) // echo everything
-	}
-	if err != nil {
+	if _, err := io.Copy(s, s); err != nil {
 		t.Error(err)
 	}
-}
-
-type logWriter struct {
-	t *testing.T
-	W io.Writer
-}
-
-func (lw *logWriter) Write(buf []byte) (int, error) {
-	lw.t.Logf("logwriter: writing %d bytes", len(buf))
-	return lw.W.Write(buf)
 }
 
 func echo(t *testing.T, c transport.CapableConn) {
@@ -141,7 +113,6 @@ func serve(t *testing.T, l transport.Listener) {
 		defer c.Close()
 
 		wg.Add(1)
-		debugLog(t, "accepted connection")
 		go func() {
 			defer wg.Done()
 			echo(t, c)
@@ -165,12 +136,9 @@ func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr,
 	}
 
 	writeStream := func(s network.MuxedStream, bufs chan<- []byte) {
-		debugLog(t, "writeStream %p, %d MsgNum", s, opt.MsgNum)
-
 		for i := 0; i < opt.MsgNum; i++ {
 			buf := randBuf(msgsize)
 			bufs <- buf
-			debugLog(t, "%p writing %d bytes (message %d/%d #%x)", s, len(buf), i, opt.MsgNum, buf[:3])
 			if _, err := s.Write(buf); err != nil {
 				t.Errorf("s.Write(buf): %s", err)
 				continue
@@ -179,17 +147,13 @@ func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr,
 	}
 
 	readStream := func(s network.MuxedStream, bufs <-chan []byte) {
-		debugLog(t, "readStream %p, %d MsgNum", s, opt.MsgNum)
-
 		buf2 := make([]byte, msgsize)
 		i := 0
 		for buf1 := range bufs {
 			i++
-			debugLog(t, "%p reading %d bytes (message %d/%d #%x)", s, len(buf1), i-1, opt.MsgNum, buf1[:3])
 
 			if _, err := io.ReadFull(s, buf2); err != nil {
 				t.Errorf("io.ReadFull(s, buf2): %s", err)
-				debugLog(t, "%p failed to read %d bytes (message %d/%d #%x)", s, len(buf1), i-1, opt.MsgNum, buf1[:3])
 				continue
 			}
 			if !bytes.Equal(buf1, buf2) {
@@ -199,8 +163,6 @@ func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr,
 	}
 
 	openStreamAndRW := func(c network.MuxedConn) {
-		debugLog(t, "openStreamAndRW %p, %d opt.MsgNum", c, opt.MsgNum)
-
 		s, err := c.OpenStream(context.Background())
 		if err != nil {
 			t.Errorf("failed to create NewStream: %s", err)
@@ -218,8 +180,6 @@ func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr,
 	}
 
 	openConnAndRW := func() {
-		debugLog(t, "openConnAndRW")
-
 		var wg sync.WaitGroup
 		defer wg.Wait()
 
@@ -248,7 +208,6 @@ func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr,
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			debugLog(t, "serving connection")
 			echo(t, c)
 		}()
 
@@ -262,8 +221,6 @@ func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr,
 		}
 		openWg.Wait()
 	}
-
-	debugLog(t, "openConnsAndRW, %d conns", opt.ConnNum)
 
 	var wg sync.WaitGroup
 	defer wg.Wait()
