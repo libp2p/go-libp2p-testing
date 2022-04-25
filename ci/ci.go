@@ -5,8 +5,6 @@ package ci
 
 import (
 	"os"
-
-	travis "github.com/libp2p/go-libp2p-testing/ci/travis"
 )
 
 // EnvVar is a type to use travis-only env var names with
@@ -20,14 +18,9 @@ const (
 	VarVerbose EnvVar = "TEST_VERBOSE"
 )
 
-// IsRunning attempts to determine whether this process is
-// running on CI. This is done by checking any of:
-//
-//  CI=true
-//  travis.IsRunning()
-//
+// IsRunning attempts to determine whether this process is running on CI.
 func IsRunning() bool {
-	return os.Getenv(string(VarCI)) == "true" || travis.IsRunning()
+	return os.Getenv(string(VarCI)) == "true"
 }
 
 // Env returns the value of a CI env variable.
