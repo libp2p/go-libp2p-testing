@@ -141,7 +141,7 @@ func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr,
 			bufs <- buf
 			if _, err := s.Write(buf); err != nil {
 				t.Errorf("s.Write(buf): %s", err)
-				continue
+				return
 			}
 		}
 	}
@@ -154,10 +154,11 @@ func SubtestStress(t *testing.T, ta, tb transport.Transport, maddr ma.Multiaddr,
 
 			if _, err := io.ReadFull(s, buf2); err != nil {
 				t.Errorf("io.ReadFull(s, buf2): %s", err)
-				continue
+				return
 			}
 			if !bytes.Equal(buf1, buf2) {
 				t.Errorf("buffers not equal (%x != %x)", buf1[:3], buf2[:3])
+				return
 			}
 		}
 	}
