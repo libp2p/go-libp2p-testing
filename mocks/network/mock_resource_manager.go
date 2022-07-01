@@ -11,6 +11,7 @@ import (
 	network "github.com/libp2p/go-libp2p-core/network"
 	peer "github.com/libp2p/go-libp2p-core/peer"
 	protocol "github.com/libp2p/go-libp2p-core/protocol"
+	multiaddr "github.com/multiformats/go-multiaddr"
 )
 
 // MockResourceManager is a mock of ResourceManager interface.
@@ -51,18 +52,18 @@ func (mr *MockResourceManagerMockRecorder) Close() *gomock.Call {
 }
 
 // OpenConnection mocks base method.
-func (m *MockResourceManager) OpenConnection(arg0 network.Direction, arg1 bool) (network.ConnManagementScope, error) {
+func (m *MockResourceManager) OpenConnection(arg0 network.Direction, arg1 bool, arg2 multiaddr.Multiaddr) (network.ConnManagementScope, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "OpenConnection", arg0, arg1)
+	ret := m.ctrl.Call(m, "OpenConnection", arg0, arg1, arg2)
 	ret0, _ := ret[0].(network.ConnManagementScope)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // OpenConnection indicates an expected call of OpenConnection.
-func (mr *MockResourceManagerMockRecorder) OpenConnection(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockResourceManagerMockRecorder) OpenConnection(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OpenConnection", reflect.TypeOf((*MockResourceManager)(nil).OpenConnection), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OpenConnection", reflect.TypeOf((*MockResourceManager)(nil).OpenConnection), arg0, arg1, arg2)
 }
 
 // OpenStream mocks base method.
