@@ -7,8 +7,6 @@ require (
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/libp2p/go-libp2p-core v0.19.0
 	github.com/multiformats/go-multiaddr v0.4.1
-	go.uber.org/atomic v1.7.0
-	google.golang.org/grpc v1.31.1
 )
 
 require (
@@ -32,6 +30,7 @@ require (
 	github.com/multiformats/go-multihash v0.0.15 // indirect
 	github.com/multiformats/go-varint v0.0.6 // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
+	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect
 	golang.org/x/crypto v0.0.0-20210506145944-38f3c27a63bf // indirect
