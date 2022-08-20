@@ -3,7 +3,6 @@ module github.com/libp2p/go-libp2p-testing
 go 1.17
 
 require (
-	github.com/golang/mock v1.6.0
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/libp2p/go-libp2p-core v0.19.0
 	github.com/multiformats/go-multiaddr v0.4.1
