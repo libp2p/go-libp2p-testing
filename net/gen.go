@@ -16,7 +16,8 @@ import (
 )
 
 // ZeroLocalTCPAddress is the "zero" tcp local multiaddr. This means:
-//   /ip4/127.0.0.1/tcp/0
+//
+//	/ip4/127.0.0.1/tcp/0
 var ZeroLocalTCPAddress, _ = ma.NewMultiaddr("/ip4/127.0.0.1/tcp/0")
 
 // RandLocalTCPAddress returns a random multiaddr. it suppresses errors
