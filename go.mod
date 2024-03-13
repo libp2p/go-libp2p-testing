@@ -2,7 +2,6 @@ module github.com/libp2p/go-libp2p-testing
 
 go 1.21
 
-
 require (
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/libp2p/go-libp2p v0.22.0
